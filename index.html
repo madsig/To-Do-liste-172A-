@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do liste</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="app"></div>
+    <script>
+        //model
+        let task1 = { id: 'task1', text: 'Test mål', responsible: 'Gud', isDone: false, doneDate: null };
+        let task2 = { id: 'task2', text: 'Test mål 2', responsible: 'Gud', isDone: true, doneDate: '2023-09-08' };
+        let drawnTasks = [task1, task2];
+        let tasks = {task1, task2};
+        let taskNr = 3;
+        let textInput;
+        let respInput;
+        const appElement = document.getElementById('app');
+
+        //view
+        view();
+        function view() {
+            HTML = getTable(drawnTasks);
+            HTML += /*HTML*/`
+                Oppgave: <input id="taskId" type="text"  onchange="textInput=this.value"><br/>
+                Ansvarlig: <input id="respId" type="text" , onchange="respInput=this.value"><br/>
+                <button id="taskButton">Legg til oppgave</button>
+            `
+            textInput = '';
+            respInput = '';
+            appElement.innerHTML = HTML;
+        }
+
+        function getTable(taskArray) {
+            let table = /*HTML*/ `
+                <table>
+                    <tr>
+                        <th>Oppgave</th>
+                        <th>Ansvarlig</th>
+                        <th>Ferdig?</th>
+                        <th>Ferdig dato</th>
+                        <th>Slett</th>
+                        <th>Rediger</th>
+                    </tr>
+            `
+            for (i = 0; i < taskArray.length; i++) {
+                table += /*HTML*/ `
+                    <tr id="${drawnTasks[i].id}">
+                        <td>${drawnTasks[i].text}</td>
+                        <td>${drawnTasks[i].responsible}</td>
+                        <td class="checkbox"><input type="checkbox" ${drawnTasks[i].isDone ? 'checked' : ''}></td>
+                        <td class="number">${drawnTasks[i].doneDate === null ? '' : drawnTasks[i].doneDate}</td>
+                        <td class="delete"><button id="deleteButton">Slett</button></td>
+                        <td class="edit"><button id="editButton">Rediger</button></td>
+                    </tr>
+                `
+            }
+            table += /*HTML*/`</table>`
+            return table;
+        }
+
+        //controller
+        function createTask(name) {
+            let text = textInput;
+            let responsible = respInput;
+            let isDone = false;
+            let doneDate = null;
+
+            if (text === undefined || text === null || text === "") {
+                text = "Oppgave " + taskNr;
+            }
+            if (responsible === undefined || responsible === null || responsible === "") {
+                responsible = "ingen";
+            }
+            taskNr++;
+
+            const taskName = name;
+            tasks[taskName] = { id: name, text, responsible, isDone, doneDate };
+
+            drawnTasks.push(tasks[taskName]);
+            view();
+        }
+
+        appElement.addEventListener("click", function (event) {
+            if (event.target.id === "taskButton") {
+                let taskName = "task" + taskNr;
+                createTask(taskName);
+            }
+            if (event.target.type === "checkbox") {
+                checkTask(event);
+            }
+            if (event.target.id === "deleteButton") {
+                deleteTask(event);
+            }
+            if (event.target.id === "editButton") {
+                editTask(event);
+            }
+        })
+
+        function checkTask(event) {
+            const id = event.target.parentElement.parentElement.id;
+
+            if (tasks[id].isDone) {
+                console.log('no');
+                console.log(tasks[id].isDone);
+                tasks[id].isDone = false;
+
+                tasks[id].doneDate = null
+            }
+            else {
+                tasks[id].isDone = true;
+                console.log('yes');
+                console.log(tasks[id].isDone);
+
+                let currentDate = new Date();
+                let isoString = currentDate.toISOString();
+                let dateOnly = isoString.split('T')[0];
+                tasks[id].doneDate = dateOnly;
+            }
+            view();
+            console.log(id);
+            console.log(event);
+        }
+
+        //litt usikker på denne, burde være en lettere måte å gjøre det på
+        function deleteTask(event) {
+            const id = event.target.parentElement.parentElement.id;
+            console.log(id + " deleted");
+            drawnTasks = drawnTasks.filter(task => task.id !== id);
+            view();
+        }
+
+        function editTask(edit) {
+            const id = event.target.parentElement.parentElement.id;
+
+            let text = textInput;
+            let responsible = respInput;
+
+            if (text === undefined || text === null || text === "") {
+                text = tasks[id].text;
+            }
+            if (responsible === undefined || responsible === null || responsible === "") {
+                responsible = tasks[id].responsible;
+            }
+
+            tasks[id].text = text;
+            tasks[id].responsible = responsible;
+            view();
+        }
+    </script>
+</body>
+
+</html>
