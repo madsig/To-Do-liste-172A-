@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app"></div>
+    <script>
+        view();
+        function view() {
+            document.getElementById('app').innerHTML = /*HTML*/ `
+            <select id="yourDropdown">
+                <option value="option1">Option 1</option>
+                <option value="option2">Option 2</option>
+                <option value="option3">Option 3</option>
+            </select>
+            <button onclick="view()">reset</button>
+            `
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+    // Retrieve the selected value from local storage
+    var selectedValue = localStorage.getItem('selectedValue');
+
+    // Get the dropdown element
+    var dropdown = document.getElementById('yourDropdown');
+
+    // Set the selected value in the dropdown, if it exists in local storage
+    if (selectedValue) {
+        dropdown.value = selectedValue;
+    }
+
+    // Add an event listener to update local storage when the selection changes
+    dropdown.addEventListener('change', function () {
+        selectedValue = dropdown.value;
+        localStorage.setItem('selectedValue', selectedValue);
+    });
+});
+
+    </script>    
+</body>
+</html>
