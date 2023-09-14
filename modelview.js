@@ -1,35 +1,50 @@
 //model
-let task1 = { id: 'task1', text: 'Test mål', responsible: 'Gud', isDone: false, doneDate: null };
-let task2 = { id: 'task2', text: 'Test mål 2', responsible: 'Gud', isDone: true, doneDate: '2023-09-08' };
-let drawnTasks = [task1, task2];
-let tasks = { task1, task2 };
-let taskNr = 3;
-let textInput;
-let respInput;
-let namesArray;
-let isFiltered = false;
-let isSorted = false;
-let filteredObjects = [];
+const model = {
+    tasks: [
+        { id: 'task1', text: 'Test mål', responsible: 'Per', isDone: false, doneDate: null },
+        { id: 'task2', text: 'Test mål 2', responsible: 'Pål', isDone: true, doneDate: '2023-09-08' },
+        { id: 'task2', text: 'Test mål 3', responsible: 'Gud', isDone: true, doneDate: '2023-09-08' },
+        { id: 'task2', text: 'Test mål 4', responsible: 'Ole', isDone: true, doneDate: '2023-09-08' },
+        { id: 'task2', text: 'Test mål 5', responsible: 'Ken', isDone: true, doneDate: '2023-09-08' },
+        { id: 'task2', text: 'Test mål 6', responsible: 'Ole', isDone: true, doneDate: '2023-09-08' },
+        { id: 'task2', text: 'Test mål 7', responsible: 'Gud', isDone: true, doneDate: '2023-09-08' },
+        { id: 'task2', text: 'Test mål 8', responsible: 'Pål', isDone: true, doneDate: '2023-09-08' },
+        { id: 'task2', text: 'Test mål 9', responsible: 'Gud', isDone: true, doneDate: '2023-09-08' },
+    ],
+    inputs: {
+        textInput: '',
+        respInput: '',
+        responsibleFilter: null,
+    },
+
+};
+
 const appElement = document.getElementById('app');
 
 //view
 view();
 function view() {
-    namesArray = getNames();
-    HTML = getTable(drawnTasks);
-    HTML += /*HTML*/`
-         Oppgave: <input id="taskId" type="text"  onchange="textInput=this.value"><br/>
-         Ansvarlig: <input id="respId" type="text" , onchange="respInput=this.value"><br/>
-         <button id="taskButton">Legg til oppgave</button><br/>
-     `
-    HTML += getFilter();
-    textInput = '';
-    respInput = '';
-    appElement.innerHTML = HTML;
+    let tasks = model.tasks;
+    tasks = getFilteredListByResponsible(tasks);
+    appElement.innerHTML = /*HTML*/`
+        ${getTableHtml(tasks)}
+        Oppgave: <input id="taskId" type="text"  onchange="textInput=this.value"><br/>
+        Ansvarlig: <input id="respId" type="text" , onchange="respInput=this.value"><br/>
+        <button id="taskButton">Legg til oppgave</button><br/>
+        <hr/>
+        ${getFilterByResponsibleHtml()}
+        <hr/>
+    `;
 }
 
-function getTable(taskArray) {
-    let table = /*HTML*/ `
+function getFilteredListByResponsible(tasks){
+    const responsible = model.inputs.responsibleFilter;
+    if (responsible == null) return tasks;
+    return model.tasks.filter(t=>t.responsible==responsible);      
+}
+
+function getTableHtml(taskArray) {
+    let tableHtml = /*HTML*/ `
          <table>
              <tr>
                  <th>Oppgave</th>
@@ -39,37 +54,35 @@ function getTable(taskArray) {
                  <th>Slett</th>
                  <th>Rediger</th>
              </tr>
-     `
-     if (isFiltered) {
-        table += getFilteredTable();
-     }
-     else {
-         for (i = 0; i < taskArray.length; i++) {
-             table += /*HTML*/ `
-                  <tr id="${drawnTasks[i].id}">
-                      <td>${drawnTasks[i].text}</td>
-                      <td>${drawnTasks[i].responsible}</td>
-                      <td class="checkbox"><input type="checkbox" ${drawnTasks[i].isDone ? 'checked' : ''}></td>
-                      <td class="number">${drawnTasks[i].doneDate === null ? '' : drawnTasks[i].doneDate}</td>
-                      <td class="delete"><button id="deleteButton">Slett</button></td>
-                      <td class="edit"><button id="editButton">Rediger</button></td>
-                  </tr>
-              `
-         }
-     }
-    table += /*HTML*/`</table>`
-    return table;
+     `;
+    for (i = 0; i < taskArray.length; i++) {
+        const task = taskArray[i];
+        tableHtml += /*HTML*/ `
+            <tr>
+                <td>${task.text}</td>
+                <td>${task.responsible}</td>
+                <td class="checkbox"><input type="checkbox" ${task.isDone ? 'checked' : ''}></td>
+                <td class="number">${task.doneDate === null ? '' : task.doneDate}</td>
+                <td class="delete"><button id="deleteButton">Slett</button></td>
+                <td class="edit"><button id="editButton">Rediger</button></td>
+            </tr>
+        `;
+    }
+    tableHtml += /*HTML*/`</table>`
+    return tableHtml;
 }
 
-function getFilter() {
+function getFilterByResponsibleHtml() {
+    const namesArray = new Set(model.tasks.map(t=>t.responsible));
     let SELECT = /*HTML*/`
          <label for="responsible">Filtrer etter ansvarlig:</label>
-         <select name="responsible" id="filter">
-            <option value="noneSelected">Velg navn</option>
+         <select name="responsible" id="filter" onchange="filterByResponsible(this.value)">
+            <option value="">ikke filtrert</option>
      `;
-    for (let names of namesArray) {
+    for (let name of namesArray) {
+        const selected = name == model.inputs.responsibleFilter ? 'selected' : '';
         SELECT += /*HTML*/`
-             <option value="${names}">${names}</option>
+             <option value="${name}" ${selected}>${name}</option>
          `
     }
     SELECT += /*HTML*/ `</select><br/>`

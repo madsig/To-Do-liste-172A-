@@ -86,6 +86,11 @@ function editTask(event) {
     view();
 }
 
+//Terje
+function filterByResponsible(name){    
+    model.inputs.responsibleFilter = name == '' ? null : name;
+    view();
+}
 
 appElement.addEventListener("change", function (event) {
     if (event.target.id === "filter") {
