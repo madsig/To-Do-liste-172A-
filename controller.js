@@ -1,8 +1,10 @@
 //controller
 appElement.addEventListener("click", function (event) {
+    let taskNr = model.tasks.length + 1;
     if (event.target.id === "taskButton") {
         let taskName = "task" + taskNr;
-        createTask(taskName);
+        createTask(taskName, taskNr);
+        taskNr++;
     }
     if (event.target.type === "checkbox") {
         checkTask(event);
@@ -15,11 +17,12 @@ appElement.addEventListener("click", function (event) {
     }
 })
 
-function createTask(name) {
-    let text = textInput;
-    let responsible = respInput;
+function createTask(name, taskNr) {
+    let text = model.inputs.textInput;
+    let responsible = model.inputs.respInput;
     let isDone = false;
     let doneDate = null;
+    let deleted = false
 
     if (text === undefined || text === null || text === "") {
         text = "Oppgave " + taskNr;
@@ -27,62 +30,60 @@ function createTask(name) {
     if (responsible === undefined || responsible === null || responsible === "") {
         responsible = "ingen";
     }
-    taskNr++;
 
     const taskName = name;
-    tasks[taskName] = { id: name, text, responsible, isDone, doneDate };
+    model.tasks.push({ id: name, text, responsible, isDone, doneDate, deleted });
 
-    drawnTasks.push(tasks[taskName]);
     view();
 }
 
 function checkTask(event) {
-    const id = event.target.parentElement.parentElement.id;
+    const tasks = model.tasks;
+    let id = event.target.parentElement.parentElement.id;
+    index = id.charAt(4) - 1;
 
-    if (tasks[id].isDone) {
-        console.log('no');
-        console.log(tasks[id].isDone);
-        tasks[id].isDone = false;
+    if (tasks[index].isDone) {
+        tasks[index].isDone = false;
 
-        tasks[id].doneDate = null
+        tasks[index].doneDate = null
     }
     else {
-        tasks[id].isDone = true;
-        console.log('yes');
-        console.log(tasks[id].isDone);
+        tasks[index].isDone = true;
 
         let currentDate = new Date();
         let isoString = currentDate.toISOString();
         let dateOnly = isoString.split('T')[0];
-        tasks[id].doneDate = dateOnly;
+        tasks[index].doneDate = dateOnly;
     }
     view();
-    console.log(id);
-    console.log(event);
 }
 
 function deleteTask(event) {
     const id = event.target.parentElement.parentElement.id;
+    index = id.charAt(4) - 1;
     console.log(id + " deleted");
-    drawnTasks = drawnTasks.filter(task => task.id !== id);
+    model.tasks[index].deleted = true;
     view();
 }
 
 function editTask(event) {
-    const id = event.target.parentElement.parentElement.id;
+    const tasks = model.tasks;
+    const inputs = model.inputs;
+    let id = event.target.parentElement.parentElement.id;
+    index = id.charAt(4) - 1;
 
-    let text = textInput;
-    let responsible = respInput;
+    let text = inputs.textInput;
+    let responsible = inputs.respInput;
 
     if (text === undefined || text === null || text === "") {
-        text = tasks[id].text;
+        text = tasks[index].text;
     }
     if (responsible === undefined || responsible === null || responsible === "") {
-        responsible = tasks[id].responsible;
+        responsible = tasks[index].responsible
     }
 
-    tasks[id].text = text;
-    tasks[id].responsible = responsible;
+    tasks[index].text = text;
+    tasks[index].responsible = responsible;
     view();
 }
 
@@ -92,27 +93,12 @@ function filterByResponsible(name){
     view();
 }
 
-appElement.addEventListener("change", function (event) {
-    if (event.target.id === "filter") {
-        filterByNames(event);
-        console.log("test test")
-    }
-})
-
-function filterByNames(event) {
-    filteredObjects = [];
-    let filter = event.target.value;
-    console.log(filter)
-    if (filter === "noneSelected") {
-        isFiltered = false;
-        view();
-        return;
-    }
-    isFiltered = true;
-    for (let task of drawnTasks) {
-        if (task.responsible === filter) {
-            filteredObjects.push(task)
-        }
-    }
-    view(); 
+function sortByDate(sortType) {
+    console.log(sortType);
+    console.log(model.inputs.dateSortedBy);
+    if (sortType === 'ascending') model.inputs.dateSortedBy = 'ascending';
+    else if (sortType === 'descending') model.inputs.dateSortedBy = 'descending';
+    else if (sortType === '') model.inputs.dateSortedBy = null;
+    console.log(model.inputs.dateSortedBy);
+    view();
 }
