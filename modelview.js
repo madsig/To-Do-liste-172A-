@@ -37,8 +37,8 @@ function view() {
         ${getFilterByResponsibleHtml()}
         ${getSortedByDateHtml()}
     `;
-    inputs.textInput = ''
-    inputs.respInput = ''
+    inputs.textInput = '';
+    inputs.respInput = '';
 }
 
 function getFilteredListByResponsible(tasks) {
@@ -54,16 +54,16 @@ function getSortedListByDate(tasks) {
     let notDoneTasks = tasks.filter(t => !t.isDone);
 
     if (sorted === 'ascending') {
-        doneTasks = doneTasks.sort(function(a, b) {
+        doneTasks = doneTasks.sort(function (a, b) {
             return (a.doneDate < b.doneDate) ? -1 : ((a.doneDate > b.doneDate) ? 1 : 0);
         });
     }
     else if (sorted === 'descending') {
-        doneTasks = doneTasks.sort(function(b, a) {
+        doneTasks = doneTasks.sort(function (b, a) {
             return (a.doneDate < b.doneDate) ? -1 : ((a.doneDate > b.doneDate) ? 1 : 0);
         });
     }
-    
+
     return doneTasks.concat(notDoneTasks);
 }
 
@@ -120,12 +120,12 @@ function getSortedByDateHtml() {
         <select name="sortedDate" id="sort" onchange="sortByDate(this.value)">
             <option value="">ikke sortert</option>
 `;
-select += /*HTML*/ `
-    <option value ="ascending" ${'ascending' == model.inputs.dateSortedBy ? 'selected' : ''}>Stigende</option>
-    <option value ="descending" ${'descending' == model.inputs.dateSortedBy ? 'selected' : ''}>Sykende</option>
+    select += /*HTML*/ `
+        <option value ="ascending" ${'ascending' == model.inputs.dateSortedBy ? 'selected' : ''}>Stigende</option>
+        <option value ="descending" ${'descending' == model.inputs.dateSortedBy ? 'selected' : ''}>Sykende</option>
 `
-select += /*HTML*/`</select>`
-return select;
+    select += /*HTML*/`</select>`
+    return select;
 }
 
 function getFilteredTable() {
@@ -144,3 +144,14 @@ function getFilteredTable() {
     }
     return filteredTable;
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    let storedTasks = localStorage.getItem('storedTasks');
+
+    if (storedTasks) {
+        model.tasks = JSON.parse(storedTasks);
+        console.log("found local storage");
+        view();
+    }
+    else console.log("no local storage found");
+});

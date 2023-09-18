@@ -34,13 +34,16 @@ function createTask(name, taskNr) {
     const taskName = name;
     model.tasks.push({ id: name, text, responsible, isDone, doneDate, deleted });
 
+    storedTasks = JSON.stringify(model.tasks);
+    localStorage.setItem('storedTasks', storedTasks);
+
     view();
 }
 
 function checkTask(event) {
     const tasks = model.tasks;
     let id = event.target.parentElement.parentElement.id;
-    index = id.charAt(4) - 1;
+    index = id.substring(4) - 1;
 
     if (tasks[index].isDone) {
         tasks[index].isDone = false;
@@ -55,14 +58,22 @@ function checkTask(event) {
         let dateOnly = isoString.split('T')[0];
         tasks[index].doneDate = dateOnly;
     }
+
+    storedTasks = JSON.stringify(model.tasks);
+    localStorage.setItem('storedTasks', storedTasks);
+
     view();
 }
 
 function deleteTask(event) {
     const id = event.target.parentElement.parentElement.id;
-    index = id.charAt(4) - 1;
+    index = id.substring(4) - 1;
     console.log(id + " deleted");
     model.tasks[index].deleted = true;
+
+    storedTasks = JSON.stringify(model.tasks);
+    localStorage.setItem('storedTasks', storedTasks);
+
     view();
 }
 
@@ -70,7 +81,7 @@ function editTask(event) {
     const tasks = model.tasks;
     const inputs = model.inputs;
     let id = event.target.parentElement.parentElement.id;
-    index = id.charAt(4) - 1;
+    index = id.substring(4) - 1;
 
     let text = inputs.textInput;
     let responsible = inputs.respInput;
@@ -84,6 +95,10 @@ function editTask(event) {
 
     tasks[index].text = text;
     tasks[index].responsible = responsible;
+
+    storedTasks = JSON.stringify(model.tasks);
+    localStorage.setItem('storedTasks', storedTasks);
+
     view();
 }
 
