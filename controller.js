@@ -109,11 +109,14 @@ function filterByResponsible(name){
 }
 
 function sortByDate(sortType) {
-    console.log(sortType);
-    console.log(model.inputs.dateSortedBy);
-    if (sortType === 'ascending') model.inputs.dateSortedBy = 'ascending';
-    else if (sortType === 'descending') model.inputs.dateSortedBy = 'descending';
-    else if (sortType === '') model.inputs.dateSortedBy = null;
-    console.log(model.inputs.dateSortedBy);
+    console.log("sortType " + sortType);
+    console.log("var before " + model.inputs.dateSortedBy);
+    if (sortType == '') model.inputs.dateSortedBy = null;
+    else model.inputs.dateSortedBy = sortType;
+    console.log("var after " + model.inputs.dateSortedBy);
     view();
+}
+
+function removeLocalStorage() {
+    localStorage.removeItem('storedTasks')
 }

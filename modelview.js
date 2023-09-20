@@ -53,16 +53,10 @@ function getSortedListByDate(tasks) {
     let doneTasks = tasks.filter(t => t.isDone);
     let notDoneTasks = tasks.filter(t => !t.isDone);
 
-    if (sorted === 'ascending') {
-        doneTasks = doneTasks.sort(function (a, b) {
-            return (a.doneDate < b.doneDate) ? -1 : ((a.doneDate > b.doneDate) ? 1 : 0);
-        });
-    }
-    else if (sorted === 'descending') {
-        doneTasks = doneTasks.sort(function (b, a) {
-            return (a.doneDate < b.doneDate) ? -1 : ((a.doneDate > b.doneDate) ? 1 : 0);
-        });
-    }
+    let order = sorted == 'ascending' ? -1 : 1;
+    doneTasks = doneTasks.sort(function(a, b) {
+        return (a.doneDate < b.doneDate) ? order : ((a.doneDate > b.doneDate) ? -order : 0);
+    });
 
     return doneTasks.concat(notDoneTasks);
 }
