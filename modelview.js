@@ -39,6 +39,7 @@ function view() {
     let tasks = model.tasks;
     let inputs = model.inputs;
     let paging = model.paging;
+    tasks = filterOutDeleted(tasks);
     tasks = getFilteredListByResponsible(tasks);
     tasks = getSortedListByDate(tasks);
     tasks = getPagingList(tasks, paging.pageLength, paging.pageIndex);
@@ -54,6 +55,11 @@ function view() {
     `;
     inputs.textInput = '';
     inputs.respInput = '';
+}
+
+function filterOutDeleted(tasks) {
+    let filteredList = tasks.filter(t => t.deleted == false);
+    return filteredList;
 }
 
 function getFilteredListByResponsible(tasks) {
@@ -80,10 +86,10 @@ function getSortedListByDate(tasks) {
 }
 
 function getPagingList(tasks, length, index) {
-    //return tasks;
+    let filterDeleted = tasks.filter(t => t.deleted == false);
     let page = index * length;
     let pageNr = page + length;
-    let pagingList = tasks.slice(page, pageNr);
+    let pagingList = filterDeleted.slice(page, pageNr);
     return pagingList;
 }
 
@@ -119,7 +125,6 @@ function getTableHtml(taskArray) {
 
 function getPagingHtml() {
     let maxIndex = Math.ceil(model.paging.filteredListLength / model.paging.pageLength) - 1;
-    const selected = model.paging.pageLength ? 'selected' : ''
     let pagingHtml = /*HTML*/ `
         <button ${model.paging.pageIndex < 1 ? 'disabled' : ''} onclick="changePage(-1)">⟵</button>
         <button ${model.paging.pageIndex < maxIndex ? '' : 'disabled'} onclick="changePage(1)">⟶</button>
