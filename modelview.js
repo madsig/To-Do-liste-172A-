@@ -10,12 +10,24 @@ const model = {
         { id: 'task7', text: 'Test mål 7', responsible: 'Gud', isDone: false, doneDate: null, deleted: false },
         { id: 'task8', text: 'Test mål 8', responsible: 'Pål', isDone: true, doneDate: '2023-09-11', deleted: false },
         { id: 'task9', text: 'Test mål 9', responsible: 'Gud', isDone: false, doneDate: null, deleted: false },
+        { id: 'task10', text: 'Test mål 10', responsible: 'Gud', isDone: false, doneDate: null, deleted: false },
+        { id: 'task11', text: 'Test mål 11', responsible: 'Pål', isDone: false, doneDate: null, deleted: false },
+        { id: 'task12', text: 'Test mål 12', responsible: 'Pål', isDone: true, doneDate: '2017-07-29', deleted: false },
+        { id: 'task13', text: 'Test mål 13', responsible: 'ingen', isDone: true, doneDate: '2022-12-23', deleted: false },
+        { id: 'task14', text: 'Test mål 14', responsible: 'Ole', isDone: true, doneDate: '2023-03-24', deleted: false },
+        { id: 'task15', text: 'Test mål 15', responsible: 'Ole', isDone: false, doneDate: null, deleted: false },
+        { id: 'task16', text: 'Test mål 16', responsible: 'Ken', isDone: true, doneDate: '2021-11-01', deleted: false },
     ],
     inputs: {
         textInput: '',
         respInput: '',
         responsibleFilter: null,
         dateSortedBy: null,
+    },
+    paging: {
+        pageIndex: 0,
+        pageLength: 10,
+        filteredListLength: 0,
     },
 };
 
@@ -26,10 +38,13 @@ view();
 function view() {
     let tasks = model.tasks;
     let inputs = model.inputs;
+    let paging = model.paging;
     tasks = getFilteredListByResponsible(tasks);
     tasks = getSortedListByDate(tasks);
+    tasks = getPagingList(tasks, paging.pageLength, paging.pageIndex);
     appElement.innerHTML = /*HTML*/`
         ${getTableHtml(tasks)}
+        ${getPagingHtml()}
         Oppgave: <input id="taskId" type="text" onchange="model.inputs.textInput = this.value"><br/>
         Ansvarlig: <input id="respId" type="text" onchange="model.inputs.respInput = this.value"><br/>
         <button id="taskButton">Legg til oppgave</button><br/>
@@ -43,8 +58,11 @@ function view() {
 
 function getFilteredListByResponsible(tasks) {
     const responsible = model.inputs.responsibleFilter;
+    model.paging.filteredListLength = tasks.length
     if (responsible == null) return tasks;
-    return model.tasks.filter(t => t.responsible == responsible);
+    let filteredList = model.tasks.filter(t => t.responsible == responsible);
+    model.paging.filteredListLength = filteredList.length;
+    return filteredList;
 }
 
 function getSortedListByDate(tasks) {
@@ -54,11 +72,19 @@ function getSortedListByDate(tasks) {
     let notDoneTasks = tasks.filter(t => !t.isDone);
 
     let order = sorted == 'ascending' ? -1 : 1;
-    doneTasks = doneTasks.sort(function(a, b) {
+    doneTasks = doneTasks.sort(function (a, b) {
         return (a.doneDate < b.doneDate) ? order : ((a.doneDate > b.doneDate) ? -order : 0);
     });
 
     return doneTasks.concat(notDoneTasks);
+}
+
+function getPagingList(tasks, length, index) {
+    //return tasks;
+    let page = index * length;
+    let pageNr = page + length;
+    let pagingList = tasks.slice(page, pageNr);
+    return pagingList;
 }
 
 function getTableHtml(taskArray) {
@@ -80,7 +106,7 @@ function getTableHtml(taskArray) {
             <tr id="${task.id}">
                 <td>${task.text}</td>
                 <td>${task.responsible}</td>
-                <td class="checkbox"><input type="checkbox" ${task.isDone ? 'checked' : ''}></td>
+                <td class="checkbox"><input type="checkbox" ${task.isDone ? 'checked' : ''} name="${task.text + ' checkbox'}"></td>
                 <td class="number">${task.doneDate === null ? '' : task.doneDate}</td>
                 <td class="delete"><button id="deleteButton">Slett</button></td>
                 <td class="edit"><button id="editButton">Rediger</button></td>
@@ -91,10 +117,25 @@ function getTableHtml(taskArray) {
     return tableHtml;
 }
 
+function getPagingHtml() {
+    let maxIndex = Math.ceil(model.paging.filteredListLength / model.paging.pageLength) - 1;
+    const selected = model.paging.pageLength ? 'selected' : ''
+    let pagingHtml = /*HTML*/ `
+        <button ${model.paging.pageIndex < 1 ? 'disabled' : ''} onclick="changePage(-1)">⟵</button>
+        <button ${model.paging.pageIndex < maxIndex ? '' : 'disabled'} onclick="changePage(1)">⟶</button>
+        <select onchange="changePagingLegnth(parseInt(this.value))" name="page length">
+            <option value=10 ${10 == model.paging.pageLength ? 'selected' : ''}>10</option>
+            <option value=25 ${25 == model.paging.pageLength ? 'selected' : ''}>25</option>
+            <option value=50 ${50 == model.paging.pageLength ? 'selected' : ''}>50</option>
+        </select><br/>
+    `
+    return pagingHtml;
+}
+
 function getFilterByResponsibleHtml() {
     const namesArray = new Set(model.tasks.map(t => t.responsible));
     let SELECT = /*HTML*/`
-         <label for="responsible">Filtrer etter ansvarlig:</label>
+         <label for="filter">Filtrer etter ansvarlig:</label>
          <select name="responsible" id="filter" onchange="filterByResponsible(this.value)">
             <option value="">ikke filtrert</option>
      `;
@@ -110,7 +151,7 @@ function getFilterByResponsibleHtml() {
 
 function getSortedByDateHtml() {
     let select = /*HTML*/`
-        <label for="sortedDate">Sorter etter dato:</label>
+        <label for="sort">Sorter etter dato:</label>
         <select name="sortedDate" id="sort" onchange="sortByDate(this.value)">
             <option value="">ikke sortert</option>
 `;
@@ -120,23 +161,6 @@ function getSortedByDateHtml() {
 `
     select += /*HTML*/`</select>`
     return select;
-}
-
-function getFilteredTable() {
-    let filteredTable = '';
-    for (i = 0; i < filteredObjects.length; i++) {
-        filteredTable += /*HTML*/ `
-             <tr id="${filteredObjects[i].id}">
-                 <td>${filteredObjects[i].text}</td>
-                 <td>${filteredObjects[i].responsible}</td>
-                 <td class="checkbox"><input type="checkbox" ${filteredObjects[i].isDone ? 'checked' : ''}></td>
-                 <td class="number">${filteredObjects[i].doneDate === null ? '' : filteredObjects[i].doneDate}</td>
-                 <td class="delete"><button id="deleteButton">Slett</button></td>
-                 <td class="edit"><button id="editButton">Rediger</button></td>
-             </tr>
-         `
-    }
-    return filteredTable;
 }
 
 document.addEventListener('DOMContentLoaded', function () {

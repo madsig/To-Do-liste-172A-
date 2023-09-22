@@ -117,6 +117,39 @@ function sortByDate(sortType) {
     view();
 }
 
+function changePage(direction) {
+    model.paging.pageIndex += direction;
+    view();
+}
+
+function changePagingLegnth(length) {
+    model.paging.pageIndex = 0;
+    model.paging.pageLength = length;
+    view();
+}
+
 function removeLocalStorage() {
     localStorage.removeItem('storedTasks')
+}
+
+function getExampleTasks() {
+    model.tasks = [
+        { id: 'task1', text: 'Test mål', responsible: 'Per', isDone: false, doneDate: null, deleted: false },
+        { id: 'task2', text: 'Test mål 2', responsible: 'Pål', isDone: true, doneDate: '2023-09-15', deleted: false },
+        { id: 'task3', text: 'Test mål 3', responsible: 'Gud', isDone: true, doneDate: '2022-02-13', deleted: false },
+        { id: 'task4', text: 'Test mål 4', responsible: 'Ole', isDone: false, doneDate: null, deleted: false },
+        { id: 'task5', text: 'Test mål 5', responsible: 'Ken', isDone: true, doneDate: '2023-03-08', deleted: false },
+        { id: 'task6', text: 'Test mål 6', responsible: 'Ole', isDone: false, doneDate: null, deleted: false },
+        { id: 'task7', text: 'Test mål 7', responsible: 'Gud', isDone: false, doneDate: null, deleted: false },
+        { id: 'task8', text: 'Test mål 8', responsible: 'Pål', isDone: true, doneDate: '2023-09-11', deleted: false },
+        { id: 'task9', text: 'Test mål 9', responsible: 'Gud', isDone: false, doneDate: null, deleted: false },
+        { id: 'task10', text: 'Test mål 10', responsible: 'Gud', isDone: false, doneDate: null, deleted: false },
+        { id: 'task11', text: 'Test mål 11', responsible: 'Pål', isDone: false, doneDate: null, deleted: false },
+        { id: 'task12', text: 'Test mål 12', responsible: 'Pål', isDone: true, doneDate: '2017-07-29', deleted: false },
+        { id: 'task13', text: 'Test mål 13', responsible: 'ingen', isDone: true, doneDate: '2022-12-23', deleted: false },
+        { id: 'task14', text: 'Test mål 14', responsible: 'Ole', isDone: true, doneDate: '2023-03-24', deleted: false },
+        { id: 'task15', text: 'Test mål 15', responsible: 'Ole', isDone: false, doneDate: null, deleted: false },
+        { id: 'task16', text: 'Test mål 16', responsible: 'Ken', isDone: true, doneDate: '2021-11-01', deleted: false },
+    ];
+    view();
 }
